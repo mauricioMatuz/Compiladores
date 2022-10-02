@@ -4,106 +4,268 @@ import codecs
 import os
 import sys
 
+resultado_lexema=[]
+# lista de tokens
+tokens = (
+    # Palabras Reservadas
+    "INCLUDE",
+    "USING",
+    "NAMESPACE",
+    "STD",
+    "PRINTF",
+    "CIN",
+    "GET",
+    "ENDL",
+    "ELSE",
+    "IF",
+    "INT",
+    "STRING",
+    "RETURN",
+    "VOID",
+    "WHILE",
+    "FOR",
+    # Symbolos
+    "HASH",
+    "POINT",
+    "PLUS",
+    "PLUSPLUS",
+    "MINUS",
+    "MINUSMINUS",
+    "TIMES",
+    "DIVIDE",
+    "LESS",
+    "LESSEQUAL",
+    "GREATER",
+    "GREATEREQUAL",
+    "EQUAL",
+    "DEQUAL",
+    "DISTINT",
+    "SEMICOLON",
+    "COMMA",
+    "LGREATER",
+    "RGREATER",
+    "LPAREN",
+    "RPAREN",
+    "LBRACKET",
+    "RBRACKET",
+    "LBLOCK",
+    "RBLOCK",
+    "QUOTES",
+    # Otros
+    "ID",
+    "NUMBER",
+)
 
-tokens = ['ID','PLUS','MINUS','TIMES','DIVIDE','ASSIGN','EQUAL','NE','LT','LTE','GT',
-         'GTE','LPARENT','RPARENT','COMA','SEMMICOLOM','LLLAVE','RLLAVE','NUMBER'
-]
 
-reservadas = ['IF','ELSE','WHILE','DO','INT','FLOAT','STRING','INCLUDE','HASH']
-# reservadas = {
-#       'if':'IF',
-#       'else':'ELSE',
-#       'while':'WHILE',
-#       'do':'DO',
-#       'int':'INT',
-#       'float':'FLOAT',
-#       'string':'STRING',
-#       'include':'INCLUDE',
-#       'hash':'HASH',
-# }
+# Reglas de Expresiones Regualres para token de Contexto simple
 
-tokens = tokens + reservadas
+t_PLUS = r"\+"
+t_MINUS = r"-"
+t_MINUSMINUS = r"\-\-"
+t_POINT = r"\."
+t_TIMES = r"\*"
+t_DIVIDE = r"/"
+t_EQUAL = r"="
+t_LESS = r"<"
+t_GREATER = r">"
+t_SEMICOLON = ";"
+t_COMMA = r","
+t_LPAREN = r"\("
+t_RPAREN = r"\)"
+t_LBRACKET = r"\["
+t_RBRACKET = r"\]"
+t_LBLOCK = r"{"
+t_RBLOCK = r"}"
+t_QUOTES = r"\""
 
-t_ignore = '\t'
 
-t_PLUS = r'\+'
-t_MINUS = r'\-'
-t_TIMES = r'\*'
-t_DIVIDE = r'/'
-t_ASSIGN = r'='
-t_EQUAL = r'=='
-t_NE = r'!='
-t_LT = r'<'
-t_LTE = r'<='
-t_GT = r'>'
-t_GTE = r'>='
-t_LPARENT = r'\('
-t_RPARENT = r'\)'
-t_COMA = r','
-t_SEMMICOLOM = r';'
-# t_LLAVE = r'\{'
-# t_RLLAVE = r'\}'
+def t_INCLUDE(t):
+    r"include"
+    return t
 
-def t_ID(t):
-      r'[a-zA-Z_][a-zA-Z0-9_]*'#!el ciclo pe de 0 a mucho
-      if t.value.upper() in reservadas:
-            t.value = t.value.upper()
-            t.type = t.value
-      return t
 
-def t_COMMENT(t):
-      r'//.*'
-      pass
+def t_USING(t):
+    r"using"
+    return t
+
+
+def t_NAMESPACE(t):
+    r"namespace"
+    return t
+
+
+def t_STD(t):
+    r"std"
+    return t
+
+
+def t_PRINTF(t):
+    r"printf"
+    return t
+
+
+def t_CIN(t):
+    r"cin"
+    return t
+
+
+def t_GET(t):
+    r"get"
+    return t
+
+
+def t_ENDL(t):
+    r"endl"
+    return t
+
+
+def t_ELSE(t):
+    r"else"
+    return t
+
+
+def t_IF(t):
+    r"if"
+    return t
+
+
+def t_INT(t):
+    r"int"
+    return t
+
+
+def t_RETURN(t):
+    r"return"
+    return t
+
+
+def t_VOID(t):
+    r"void"
+    return t
+
+
+def t_WHILE(t):
+    r"while"
+    return t
+
+
+def t_FOR(t):
+    r"for"
+    return t
+
 
 def t_NUMBER(t):
-      r'\d+'
-      t.value = t.value
-      return t
-
-def t_NEWLINE(t):
-      r'\n+'
-      t.lexer.lineno += len(t.value)
+    r"\d+"
+    t.value = int(t.value)
+    return t
 
 
+# exprecion regular para reconocer los identificadores
 
-def t_error(t):
-      print("caracter ilegal llamen a la migra '%s'"%t.value[0])
-      t.lexer.skip(1)
-      
-def buscarFicheros(directorio):
-      fichero = []
-      numArchivo = ''
-      respuesta = False
-      cont = 1
-      for base, dirs, files in os.walk(directorio):
-            fichero.append(files)
-      for file in files:
-            print(str(cont) + ". "+file)
-            cont = cont + 1
-            
-      while respuesta == False:
-            numArchivo = input("\nNumero del Test: ")
-            for file in files:
-                  if file == files[int(numArchivo)-1]:
-                        respuesta = True
-                        break
 
-      print("Has escogido \"%s\"\n" %files[int(numArchivo)-1])
-      return files[int(numArchivo)-1]
-                        
-      
-directorio = 'C:/Users/matam/Desktop/IA/com/C1/test/'
-archivo = buscarFicheros(directorio)
-test = directorio + archivo
-fp = codecs.open(test,"r","utf-8")
-cadena = fp.read()
-fp.close()
+def t_ID(t):
+    r"\w+(_\d\w)*"
+    return t
 
+
+def t_STRING(t):
+    # expresion RE para reconocer los String
+    r"\"?(\w+ \ *\w*\d* \ *)\"?"
+    return t
+
+
+def t_HASH(t):
+    r"\#"
+    return t
+
+
+def t_PLUSPLUS(t):
+    r"\+\+"
+    return t
+
+
+def t_LESSEQUAL(t):
+    r"<="
+    return t
+
+
+def t_GREATEREQUAL(t):
+    r">="
+    return t
+
+
+def t_DEQUAL(t):
+    r"=="
+    return t
+
+
+def t_LGREATER(t):
+    r"<<"
+    return t
+
+
+def t_RGREATER(t):
+    r">>"
+    return t
+
+
+def t_DISTINT(t):
+    r"!="
+    return t
+
+
+def t_newline(t):
+    r"\n+"
+    t.lexer.lineno += len(t.value)
+
+
+t_ignore = " \t"
+
+
+def t_comments(t):
+    r"/\*(.|\n)*?\*/"
+    t.lexer.lineno += t.value.count("\n")
+
+
+def t_comments_C99(t):
+    r"//(.)*?\n"
+    t.lexer.lineno += 1
+
+
+# def t_error(t):
+#     print(("Error Lexico: " + str(t.value[0])))
+#     t.lexer.skip(1)
+
+
+def t_error( t):
+    global resultado_lexema
+    estado = "** Token no valido en la Linea {:4} Valor {:16} Posicion {:4}".format(str(t.lineno), str(t.value),
+                                                                      str(t.lexpos))
+    resultado_lexema.append(estado)
+    t.lexer.skip(1)
+     
 analizador = lex.lex()
-analizador.input(cadena)
+def prueba(data):
+    global resultado_lexema
 
-while True:
-      tok = analizador.token()
-      if not tok :
+    
+    analizador.input(data)
+
+    resultado_lexema.clear()
+    while True:
+        tok = analizador.token()
+        if not tok:
             break
-      print(tok)
+        # print("lexema de "+tok.type+" valor "+tok.value+" linea "tok.lineno)
+        estado = "Linea {:4} Tipo {:16} Valor {:16} Posicion {:4}".format(
+            str(tok.lineno), str(tok.type), str(tok.value), str(tok.lexpos)
+        )
+        resultado_lexema.append(estado)
+    return resultado_lexema
+
+
+if __name__ == "__main__":
+    while True:
+        data = input("ingrese: ")
+        prueba(data)
+        print(resultado_lexema)
